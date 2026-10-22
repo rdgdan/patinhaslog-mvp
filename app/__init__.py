@@ -23,6 +23,13 @@ def create_app(config=None):
 
     from app import models  # noqa: F401  (registra as tabelas)
 
+    from app.routes import auth, estoque
+    from app.security import init_security
+
+    init_security(app)
+    app.register_blueprint(auth.bp)
+    app.register_blueprint(estoque.bp)
+
     with app.app_context():
         db.create_all()
 

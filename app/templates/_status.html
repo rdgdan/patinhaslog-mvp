@@ -1,0 +1,9 @@
+{# Alerta triplo (WCAG): cor + icone + texto. #}
+{% macro badge(status) -%}
+  {%- set rotulos = {
+    'vencido': ('⛔', 'Vencido'),
+    'critico': ('⚠', 'Vence em até 7 dias'),
+    'atencao': ('❗', 'Vence em até 30 dias'),
+    'ok': ('✔', 'Dentro do prazo')} -%}
+  <span class="status status-{{ status }}"><span aria-hidden="true">{{ rotulos[status][0] }}</span> {{ rotulos[status][1] }}</span>
+{%- endmacro %}

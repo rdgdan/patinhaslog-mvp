@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block titulo %}Entrar{% endblock %}
+{% block conteudo %}
+<div class="row justify-content-center">
+  <div class="col-md-5">
+    <h1 class="h3 mb-3">Entrar no PatinhasLog</h1>
+    <form method="post" novalidate>
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+      <div class="mb-3">
+        <label for="email" class="form-label">E-mail</label>
+        <input id="email" name="email" type="email" class="form-control" autocomplete="username" required>
+      </div>
+      <div class="mb-3">
+        <label for="senha" class="form-label">Senha</label>
+        <input id="senha" name="senha" type="password" class="form-control" autocomplete="current-password" required>
+      </div>
+      <button class="btn btn-primary w-100">Entrar</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
