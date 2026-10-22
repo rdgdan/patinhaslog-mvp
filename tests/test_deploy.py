@@ -42,3 +42,40 @@ def test_admin_inicial_e_criado_do_ambiente_uma_unica_vez(monkeypatch):
 def test_sem_variaveis_de_ambiente_nenhum_usuario_e_criado(app):
     with app.app_context():
         assert Usuario.query.count() == 0
+
+
+def _app_em_memoria():
+    return create_app({"TESTING": True, "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:"})
+
+
+def test_usuario_demo_e_criado_do_ambiente_sem_duplicar(monkeypatch):
+    from app.demo import criar_usuario_demo
+
+    monkeypatch.setenv("DEMO_EMAIL", "Demo@Exemplo.org")
+    monkeypatch.setenv("DEMO_PASSWORD", "senha-de-teste")
+    app = _app_em_memoria()
+    with app.app_context():
+        criar_usuario_demo()  # segunda chamada nao pode duplicar
+        usuarios = Usuario.query.all()
+        assert [u.email for u in usuarios] == ["demo@exemplo.org"]
+        assert usuarios[0].check_senha("senha-de-teste")
+        db.session.remove()
+        db.drop_all()
+
+
+def test_estoque_demo_so_e_criado_com_demo_seed(monkeypatch):
+    from app.demo import LOTES_DEMO
+    from app.models import Insumo
+
+    app = _app_em_memoria()
+    with app.app_context():
+        assert Insumo.query.count() == 0
+        db.session.remove()
+        db.drop_all()
+
+    monkeypatch.setenv("DEMO_SEED", "1")
+    app = _app_em_memoria()
+    with app.app_context():
+        assert Insumo.query.count() == len(LOTES_DEMO)
+        db.session.remove()
+        db.drop_all()
