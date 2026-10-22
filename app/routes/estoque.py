@@ -15,9 +15,14 @@ bp = Blueprint("estoque", __name__)
 @login_required
 def painel():
     insumos = Insumo.query.filter(Insumo.quantidade > 0).order_by(Insumo.validade).all()
-    nomes = sorted({i.nome for i in insumos})
     itens = [(i, status_validade(i)) for i in insumos]
-    return render_template("painel.html", itens=itens, nomes=nomes)
+    # Saldo utilizavel por produto: lotes vencidos nao entram na conta.
+    produtos = {}
+    for i, s in itens:
+        p = produtos.setdefault(i.nome, {"saldo": 0, "unidade": i.unidade})
+        if s != "vencido":
+            p["saldo"] += i.quantidade
+    return render_template("painel.html", itens=itens, produtos=sorted(produtos.items()))
 
 
 @bp.route("/insumos/novo", methods=["GET", "POST"])
@@ -62,6 +67,20 @@ def baixa():
     else:
         detalhe = ", ".join(f"{q} do lote {l.lote}" for l, q in retiradas)
         flash(f"Baixa registrada: {detalhe}.", "success")
+    return redirect(url_for("estoque.painel"))
+
+
+@bp.route("/insumos/<int:insumo_id>/descartar", methods=["POST"])
+@login_required
+def descartar(insumo_id):
+    insumo = db.get_or_404(Insumo, insumo_id)
+    if status_validade(insumo) != "vencido":
+        flash("Só é possível descartar lotes vencidos.", "danger")
+    else:
+        qtd = insumo.quantidade
+        insumo.baixar(qtd)
+        db.session.commit()
+        flash(f"Lote {insumo.lote} descartado: {qtd} {insumo.unidade} de {insumo.nome}.", "success")
     return redirect(url_for("estoque.painel"))
 
 
