@@ -12,7 +12,9 @@
     <div class="col-md-6">
       <label for="nome" class="form-label">Produto</label>
       <select id="nome" name="nome" class="form-select" required>
-        {% for n in nomes %}<option>{{ n }}</option>{% endfor %}
+        {% for n, p in produtos %}
+        <option value="{{ n }}">{{ n }} — {{ p.saldo }} {{ p.unidade }} disponíveis</option>
+        {% endfor %}
       </select>
     </div>
     <div class="col-md-3">
@@ -28,7 +30,7 @@
     <caption class="visually-hidden">Lotes em estoque ordenados pela validade</caption>
     <thead><tr>
       <th scope="col">Produto</th><th scope="col">Lote</th><th scope="col">Saldo</th>
-      <th scope="col">Validade</th><th scope="col">Situação</th>
+      <th scope="col">Validade</th><th scope="col">Situação</th><th scope="col">Ação</th>
     </tr></thead>
     <tbody>
     {% for i, s in itens %}
@@ -37,9 +39,17 @@
         <td>{{ i.quantidade }} {{ i.unidade }}</td>
         <td>{{ i.validade.strftime('%d/%m/%Y') }}</td>
         <td>{{ badge(s) }}</td>
+        <td>
+          {% if s == 'vencido' %}
+          <form method="post" action="{{ url_for('estoque.descartar', insumo_id=i.id) }}">
+            <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+            <button class="btn btn-outline-danger btn-sm">Descartar lote</button>
+          </form>
+          {% endif %}
+        </td>
       </tr>
     {% else %}
-      <tr><td colspan="5">Nenhum lote em estoque.</td></tr>
+      <tr><td colspan="6">Nenhum lote em estoque.</td></tr>
     {% endfor %}
     </tbody>
   </table>

@@ -123,3 +123,43 @@ def test_post_sem_token_csrf_e_rejeitado():
     token = re.search(r'name="_csrf" value="([0-9a-f]+)"', pagina).group(1)
     r = client.post("/login", data={"email": "a", "senha": "b", "_csrf": token})
     assert r.status_code == 200
+
+
+# --- melhorias da primeira rodada de validacao ---------------------------------
+
+ONTEM = (date.today() - timedelta(days=1)).isoformat()
+
+
+def test_seletor_da_baixa_mostra_saldo_sem_contar_lote_vencido(app, logado):
+    cadastrar(logado, lote="VENCIDO", quantidade="18", validade=ONTEM)
+    cadastrar(logado, lote="OK", quantidade="15")
+    html = logado.get("/").get_data(as_text=True)
+    assert "15 kg disponíveis" in html
+    assert "33 kg" not in html
+
+
+def test_descartar_lote_vencido_zera_o_saldo(app, logado):
+    cadastrar(logado, lote="VENCIDO", quantidade="18", validade=ONTEM)
+    with app.app_context():
+        lote_id = Insumo.query.one().id
+    r = logado.post(f"/insumos/{lote_id}/descartar", follow_redirects=True)
+    assert "descartado" in r.get_data(as_text=True)
+    with app.app_context():
+        assert db.session.get(Insumo, lote_id).quantidade == 0
+
+
+def test_descartar_recusa_lote_dentro_da_validade(app, logado):
+    cadastrar(logado, lote="OK", quantidade="15")
+    with app.app_context():
+        lote_id = Insumo.query.one().id
+    r = logado.post(f"/insumos/{lote_id}/descartar", follow_redirects=True)
+    assert "Só é possível descartar lotes vencidos" in r.get_data(as_text=True)
+    with app.app_context():
+        assert db.session.get(Insumo, lote_id).quantidade == 15
+
+
+def test_botao_descartar_so_aparece_para_lote_vencido(app, logado):
+    cadastrar(logado, lote="OK", quantidade="15")
+    assert "Descartar lote" not in logado.get("/").get_data(as_text=True)
+    cadastrar(logado, lote="VENCIDO", quantidade="5", validade=ONTEM)
+    assert "Descartar lote" in logado.get("/").get_data(as_text=True)
