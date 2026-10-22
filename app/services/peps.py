@@ -30,7 +30,8 @@ def lotes_em_alerta(hoje=None):
     lotes = (
         Insumo.query.filter(Insumo.quantidade > 0).order_by(Insumo.validade).all()
     )
-    return [(l, status_validade(l, hoje)) for l in lotes if status_validade(l, hoje) != "ok"]
+    classificados = [(l, status_validade(l, hoje)) for l in lotes]
+    return [(l, s) for l, s in classificados if s != "ok"]
 
 
 def baixar_por_peps(nome, quantidade, hoje=None):
