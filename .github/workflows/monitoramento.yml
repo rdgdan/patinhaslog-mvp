@@ -1,0 +1,16 @@
+name: Monitoramento
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+jobs:
+  disponibilidade:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verificar /health da aplicacao em producao
+        run: |
+          # O plano gratuito hiberna a instancia: tenta algumas vezes antes de marcar DOWN.
+          curl -fsS --retry 5 --retry-delay 20 --retry-all-errors --max-time 60 \
+            https://patinhaslog-mvp.onrender.com/health
