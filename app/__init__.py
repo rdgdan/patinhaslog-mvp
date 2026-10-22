@@ -50,6 +50,7 @@ def create_app(config=None):
 
     from app import models  # noqa: F401  (registra as tabelas)
 
+    from app.demo import criar_usuario_demo, popular_estoque_demo
     from app.routes import auth, estoque, health
     from app.security import init_security
 
@@ -61,5 +62,7 @@ def create_app(config=None):
     with app.app_context():
         db.create_all()
         _criar_admin_inicial()
+        criar_usuario_demo()
+        popular_estoque_demo()
 
     return app
