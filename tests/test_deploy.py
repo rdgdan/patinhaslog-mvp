@@ -19,8 +19,10 @@ def test_health_retorna_503_quando_o_banco_falha(app, client, monkeypatch):
 
 
 def test_url_postgres_e_normalizada_para_o_sqlalchemy():
-    assert _normalizar_db_url("postgres://u:p@h/db") == "postgresql://u:p@h/db"
-    assert _normalizar_db_url("postgresql://u:p@h/db") == "postgresql://u:p@h/db"
+    esperado = "postgresql+psycopg2://u:p@h/db"
+    assert _normalizar_db_url("postgres://u:p@h/db") == esperado
+    assert _normalizar_db_url("postgresql://u:p@h/db") == esperado
+    assert _normalizar_db_url(esperado) == esperado
     assert _normalizar_db_url("sqlite:///x.db") == "sqlite:///x.db"
 
 

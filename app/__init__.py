@@ -7,9 +7,14 @@ db = SQLAlchemy()
 
 
 def _normalizar_db_url(url):
-    """Hospedagens entregam postgres://, mas o SQLAlchemy exige postgresql://."""
-    if url.startswith("postgres://"):
-        return "postgresql://" + url[len("postgres://"):]
+    """Aponta URLs de Postgres para o driver psycopg2 instalado.
+
+    As hospedagens entregam postgres://, e o SQLAlchemy 2.1 assume o psycopg 3
+    quando o driver nao e informado.
+    """
+    for prefixo in ("postgres://", "postgresql://"):
+        if url.startswith(prefixo):
+            return "postgresql+psycopg2://" + url[len(prefixo):]
     return url
 
 
