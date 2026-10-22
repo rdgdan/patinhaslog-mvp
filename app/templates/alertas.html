@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% from "_status.html" import badge %}
+{% block titulo %}Alertas{% endblock %}
+{% block conteudo %}
+<h1 class="h3 mb-1">Alertas de vencimento</h1>
+<p class="text-body-secondary">ODS 12 · Meta 12.5: use primeiro o que vence primeiro e evite desperdício.</p>
+{% if itens %}
+<ul class="list-group">
+  {% for i, s in itens %}
+  <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <span><strong>{{ i.nome }}</strong> · lote {{ i.lote }} · {{ i.quantidade }} {{ i.unidade }}
+      · validade {{ i.validade.strftime('%d/%m/%Y') }}</span>
+    {{ badge(s) }}
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<div class="alert alert-success" role="status">Nenhum lote perto de vencer. 🎉</div>
+{% endif %}
+{% endblock %}

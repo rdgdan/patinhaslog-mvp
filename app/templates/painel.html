@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% from "_status.html" import badge %}
+{% block titulo %}Estoque{% endblock %}
+{% block conteudo %}
+<h1 class="h3 mb-3">Painel de estoque</h1>
+
+<section aria-labelledby="baixa-titulo" class="card card-body mb-4">
+  <h2 id="baixa-titulo" class="h5">Baixa rápida (PEPS)</h2>
+  <p class="text-body-secondary mb-3">Sai primeiro o lote que vence antes.</p>
+  <form method="post" action="{{ url_for('estoque.baixa') }}" class="row g-2 align-items-end">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+    <div class="col-md-6">
+      <label for="nome" class="form-label">Produto</label>
+      <select id="nome" name="nome" class="form-select" required>
+        {% for n in nomes %}<option>{{ n }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label for="quantidade" class="form-label">Quantidade</label>
+      <input id="quantidade" name="quantidade" type="number" min="1" class="form-control" required>
+    </div>
+    <div class="col-md-3"><button class="btn btn-primary w-100">Dar baixa</button></div>
+  </form>
+</section>
+
+<div class="table-responsive">
+  <table class="table table-striped bg-white align-middle">
+    <caption class="visually-hidden">Lotes em estoque ordenados pela validade</caption>
+    <thead><tr>
+      <th scope="col">Produto</th><th scope="col">Lote</th><th scope="col">Saldo</th>
+      <th scope="col">Validade</th><th scope="col">Situação</th>
+    </tr></thead>
+    <tbody>
+    {% for i, s in itens %}
+      <tr>
+        <th scope="row">{{ i.nome }}</th><td>{{ i.lote }}</td>
+        <td>{{ i.quantidade }} {{ i.unidade }}</td>
+        <td>{{ i.validade.strftime('%d/%m/%Y') }}</td>
+        <td>{{ badge(s) }}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="5">Nenhum lote em estoque.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

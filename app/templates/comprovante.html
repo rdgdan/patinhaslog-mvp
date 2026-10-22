@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block titulo %}Comprovante{% endblock %}
+{% block conteudo %}
+<article class="card card-body" aria-labelledby="comp-titulo">
+  <h1 id="comp-titulo" class="h4">Comprovante de doação nº {{ insumo.id }}</h1>
+  <p>A ONG <strong>Patinhas do Bem</strong> agradece{% if insumo.doador %}, <strong>{{ insumo.doador }}</strong>{% endif %}, pela doação.</p>
+  <dl class="row mb-0">
+    <dt class="col-sm-3">Produto</dt><dd class="col-sm-9">{{ insumo.nome }}</dd>
+    <dt class="col-sm-3">Quantidade</dt><dd class="col-sm-9">{{ insumo.quantidade }} {{ insumo.unidade }}</dd>
+    <dt class="col-sm-3">Lote</dt><dd class="col-sm-9">{{ insumo.lote }}</dd>
+    <dt class="col-sm-3">Validade</dt><dd class="col-sm-9">{{ insumo.validade.strftime('%d/%m/%Y') }}</dd>
+    <dt class="col-sm-3">Recebido em</dt><dd class="col-sm-9">{{ insumo.data_entrada.strftime('%d/%m/%Y') }}</dd>
+  </dl>
+</article>
+{% endblock %}
